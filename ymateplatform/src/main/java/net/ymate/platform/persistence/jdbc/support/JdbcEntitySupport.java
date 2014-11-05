@@ -135,7 +135,9 @@ public class JdbcEntitySupport {
 				// 仅处理主键值不为NULL的字段
 				if (_pkFieldValue != null) {
 					_opt.addParameter(_pkFieldValue);
-					_pkFieldFilter.add(_pkField);
+                    if (!_pkFieldFilter.contains(_pkField)) {
+                        _pkFieldFilter.add(_pkField);
+                    }
 				}
 			} else {
 				_opt.addParameter(id);
@@ -386,7 +388,9 @@ public class JdbcEntitySupport {
 				// 仅处理主键值不为NULL的字段
 				if (_pkFieldValue != null) {
 					_update.addParameter(_pkFieldValue);
-					_pkFieldFilter.add(_pkField);
+                    if (!_pkFieldFilter.contains(_pkField)) {
+                        _pkFieldFilter.add(_pkField);
+                    }
 				}
 			} else {
 				_update.addParameter(_wrapperEntity.getValue("id"));
@@ -474,7 +478,9 @@ public class JdbcEntitySupport {
 					// 仅处理主键值不为NULL的字段
 					if (_pkFieldValue != null) {
 						_batchParam.addParameter(_pkFieldValue);
-						_pkFieldFilter.add(_pkField);
+                        if (!_pkFieldFilter.contains(_pkField)) {
+                            _pkFieldFilter.add(_pkField);
+                        }
 					}
 				} else {
 					_batchParam.addParameter(_wrapperEntity.getValue("id"));
@@ -542,7 +548,9 @@ public class JdbcEntitySupport {
 					// 仅处理主键值不为NULL的字段
 					if (_pkFieldValue != null) {
 						_batchParam.addParameter(_pkFieldValue);
-						_pkFieldFilter.add(_pkField);
+                        if (!_pkFieldFilter.contains(_pkField)) {
+                            _pkFieldFilter.add(_pkField);
+                        }
 					}
 				} else {
 					_batchParam.addParameter(_idObj);
@@ -597,7 +605,9 @@ public class JdbcEntitySupport {
 				// 仅处理主键值不为NULL的字段
 				if (_pkFieldValue != null) {
 					_update.addParameter(_pkFieldValue);
-					_pkFieldFilter.add(_pkField);
+                    if (!_pkFieldFilter.contains(_pkField)) {
+                        _pkFieldFilter.add(_pkField);
+                    }
 				}
 			} else {
 				_update.addParameter(id);
@@ -727,13 +737,30 @@ public class JdbcEntitySupport {
 		ClassBeanWrapper<?> _wrapperEntity = ClassUtils.wrapper(entity);
 		ClassBeanWrapper<?> _wrapperId = null;
 		for (String fn : meta.getColumnNames()) {
+            String _attrFnName = meta.getClassAttributeMap().get(fn);
 			if (meta.isCompositeKey() && meta.getPrimaryKeys().contains(fn)) {
                 if (_wrapperId == null) {
                     _wrapperId = ClassUtils.wrapper(_wrapperEntity.getValue("id"));
                 }
-				_returnValue.put(fn, new AttributeInfo(_wrapperId.getValue(meta.getClassAttributeMap().get(fn)), _wrapperId.getFieldType(meta.getClassAttributeMap().get(fn))));
+                Class<?> _attrType = _wrapperId.getFieldType(_attrFnName);
+                Object _attrValue = _wrapperId.getValue(_attrFnName);
+                // 如果实体属性值为null
+                if (_attrValue == null) {
+                    // 则尝试提取注解中的默认值
+                    String _defValue = meta.getColumnMap().get(fn).getDefaultValue();
+                    _attrValue = _defValue.equalsIgnoreCase("@NULL") ? null : _defValue;
+                }
+				_returnValue.put(fn, new AttributeInfo(_attrValue, _attrType));
 			} else {
-				_returnValue.put(fn, new AttributeInfo(_wrapperEntity.getValue(meta.getClassAttributeMap().get(fn)), _wrapperEntity.getFieldType(meta.getClassAttributeMap().get(fn))));
+                Class<?> _attrType = _wrapperEntity.getFieldType(_attrFnName);
+                Object _attrValue = _wrapperEntity.getValue(_attrFnName);
+                // 如果实体属性值为null
+                if (_attrValue == null) {
+                    // 则尝试提取注解中的默认值
+                    String _defValue = meta.getColumnMap().get(fn).getDefaultValue();
+                    _attrValue = _defValue.equalsIgnoreCase("@NULL") ? null : _defValue;
+                }
+				_returnValue.put(fn, new AttributeInfo(_attrValue, _attrType));
 			}
 		}
 		return _returnValue;

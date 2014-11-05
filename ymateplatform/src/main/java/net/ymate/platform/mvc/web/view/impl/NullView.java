@@ -13,17 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.ymate.platform.mvc.web.support;
+package net.ymate.platform.mvc.web.view.impl;
 
-import net.ymate.platform.configuration.AbstractConfiguration;
-import net.ymate.platform.configuration.annotation.Configuration;
+import net.ymate.platform.mvc.view.AbstractView;
+
+import java.io.OutputStream;
 
 /**
- * 当WebMVC开启Convention模式时，若存在此配置文件，则只有配置文件内的mapping地址才能正常访问
+ * 空视图，用于防止控制器返回值为NULL时受Convention模式影响
  *
- * @author 刘镇 (suninformation@163.com) on 14-7-31
+ * @author 刘镇 (suninformation@163.com) on 14/10/21
  * @version 1.0
  */
-@Configuration("cfgs/convention_mapping.cfg.xml")
-public class ConventionMappingCfg extends AbstractConfiguration {
+public class NullView extends AbstractView {
+
+    public void render() throws Exception {
+    }
+
+    public void render(OutputStream output) throws Exception {
+    }
+
 }

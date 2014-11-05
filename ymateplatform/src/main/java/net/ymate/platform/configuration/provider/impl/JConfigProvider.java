@@ -17,11 +17,7 @@ package net.ymate.platform.configuration.provider.impl;
 
 import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import net.ymate.platform.base.YMP;
 import net.ymate.platform.commons.i18n.I18N;
@@ -218,9 +214,9 @@ public class JConfigProvider implements IConfigurationProvider {
 		if (keysSize == 1) {
 			properties = config.getProperties();
 		} else if (keysSize == 2) {
-			properties = config.getProperties(keys[1]);
+			properties = config.getProperties(keys[0]);
 		}
-		int headLength = keyHead.length();
+		int headLength = keysSize == 1 ? keys[0].length() : keys[1].length();
 		if (properties != null && !properties.isEmpty()) {
 			for (Object name : properties.keySet()) {
 				if (name != null && name.toString().startsWith(keysSize == 1 ? keys[0] : keys[1])) {
@@ -312,5 +308,9 @@ public class JConfigProvider implements IConfigurationProvider {
 		}
 		return zeroSize ? new String[] {} : null;
 	}
+
+    public List<String> getCategoryNames() {
+        return Arrays.asList(config.getCategoryNames());
+    }
 
 }
